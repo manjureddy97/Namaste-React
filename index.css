@@ -106,6 +106,19 @@ button:hover {
   width: 200px;
   height: 150px;
 }
+.error {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.error > img {
+  width: 800px;
+  height: 500px;
+}
+.error > h1 {
+  font-size: 5rem;
+}
 
 /* body */
 

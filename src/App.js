@@ -5,6 +5,9 @@ import Header from "./components/Header";
 import { IMG_CDN_URL } from "../constants";
 import Footer from "./components/Footer";
 import Body from "./components/Body";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import About from "./components/About";
+import Error from "./components/Error";
 
 /***
     Header
@@ -45,7 +48,18 @@ const AppLayout = () => {
     </React.Fragment>
   );
 };
+const appRouter = createBrowserRouter([
+  {
+    path: "/",
+    element: <AppLayout />,
+    errorElement: <Error />,
+  },
+  {
+    path: "/about",
+    element: <About />,
+  },
+]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
-root.render(<AppLayout />);
+root.render(<RouterProvider router={appRouter} />);
