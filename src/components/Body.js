@@ -1,7 +1,8 @@
 import { restaurantList } from "../../constants";
 import RestaurantCard from "./RestaurantCard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiSearch } from "react-icons/fi";
+import Shimmer from "./Shimmer";
 
 function filterData(searchText, restaurants) {
   const filterData = restaurants.filter((restaurant) =>
@@ -12,10 +13,30 @@ function filterData(searchText, restaurants) {
 }
 
 const Body = () => {
-  const [restaurants, setRestaurants] = useState(restaurantList);
+  const [allRestaurants, setAllRestaurants] = useState([]);
+  const [filteredRestaurants, setFilteredRestaurants] = useState([]);
   const [searchText, setSearchText] = useState("");
+  console.log("render");
 
-  return (
+  useEffect(() => {
+    getRestaurant();
+  }, []);
+
+  async function getRestaurant() {
+    const data = await fetch(
+      "https://www.swiggy.com/dapi/restaurants/list/v5?lat=17.385044&lng=78.486671&page_type=DESKTOP_WEB_LISTING"
+    );
+    const json = await data.json();
+    console.log(json);
+    setAllRestaurants(json?.data?.cards[2]?.data?.data?.cards);
+    setFilteredRestaurants(json?.data?.cards[2]?.data?.data?.cards);
+  }
+
+  if (!allRestaurants) return null;
+
+  return allRestaurants?.length === 0 ? (
+    <Shimmer />
+  ) : (
     <>
       <div className="wrapper">
         <input
@@ -31,12 +52,9 @@ const Body = () => {
         <div
           className="icon"
           onClick={() => {
-            const data = filterData(searchText, restaurants);
+            const data = filterData(searchText, allRestaurants);
 
-            setRestaurants(data);
-            {
-              console.log("data", data);
-            }
+            setFilteredRestaurants(data);
           }}
         >
           <FiSearch />
@@ -44,7 +62,7 @@ const Body = () => {
       </div>
 
       <div className="restaurant-list">
-        {restaurants.map((restaurant) => {
+        {filteredRestaurants.map((restaurant) => {
           return (
             <RestaurantCard {...restaurant?.data} key={restaurant?.data?.id} />
           );
