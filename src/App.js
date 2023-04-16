@@ -1,13 +1,22 @@
-import React from "react";
+import React, { lazy, Suspense, useState } from "react";
 import ReactDOM, { createRoot } from "react-dom/client";
 import "../index.css";
 import Header from "./components/Header";
 import { IMG_CDN_URL } from "../constants";
 import Footer from "./components/Footer";
 import Body from "./components/Body";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { createBrowserRouter, Outlet, RouterProvider } from "react-router-dom";
 import About from "./components/About";
 import Error from "./components/Error";
+import Contact from "./components/Contact";
+import RestaurantMenu from "./components/RestaurantMenu";
+// import Profile from "./components/Profile";
+import Profile from "./components/ProfileClass";
+import Shimmer from "./components/Shimmer";
+import UserContext from "./components/utils/UserContext";
+import { Provider } from "react-redux";
+import store from "./components/utils/store";
+// import Instamart from "./components/Instamart";
 
 /***
     Header
@@ -27,8 +36,7 @@ import Error from "./components/Error";
        - Copyright              
    */
 
-{
-}
+const Instamart = lazy(() => import("./components/Instamart"));
 const burgerKing = {
   name: "BurgerKing",
   image: IMG_CDN_URL,
@@ -40,12 +48,21 @@ const burgerKing = {
 // props
 
 const AppLayout = () => {
+  const [user, setUser] = useState({
+    name: "Akshay Saini",
+    email: "support@namastedev.com",
+  });
   return (
-    <React.Fragment>
-      <Header />
-      <Body />
-      <Footer />
-    </React.Fragment>
+    <Provider store={store}>
+      <UserContext.Provider value={{ user: user, setUser: setUser }}>
+        <Header />
+        {/***
+    OutLet
+    */}
+        <Outlet />
+        <Footer />
+      </UserContext.Provider>
+    </Provider>
   );
 };
 const appRouter = createBrowserRouter([
@@ -53,10 +70,45 @@ const appRouter = createBrowserRouter([
     path: "/",
     element: <AppLayout />,
     errorElement: <Error />,
-  },
-  {
-    path: "/about",
-    element: <About />,
+    children: [
+      {
+        path: "/",
+        element: (
+          <Body
+          // user={{
+          //   name: "Namaste React",
+          //   email: "support@namastedev.com",
+          // }}
+          />
+        ),
+      },
+      {
+        path: "/about",
+        element: <About />,
+        children: [
+          {
+            path: "profile",
+            element: <Profile />,
+          },
+        ],
+      },
+      {
+        path: "/contact",
+        element: <Contact />,
+      },
+      {
+        path: "/restaurant/:resId",
+        element: <RestaurantMenu />,
+      },
+      {
+        path: "instamart",
+        element: (
+          <Suspense fallback={<Shimmer />}>
+            <Instamart />
+          </Suspense>
+        ),
+      },
+    ],
   },
 ]);
 
